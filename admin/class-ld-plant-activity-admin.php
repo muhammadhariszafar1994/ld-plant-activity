@@ -1,0 +1,182 @@
+<?php
+
+/**
+ * The admin-specific functionality of the plugin.
+ *
+ * @link       http://example.com
+ * @since      1.0.0
+ *
+ * @package    LD_Plant_Activity
+ * @subpackage LD_Plant_Activity/admin
+ */
+
+/**
+ * The admin-specific functionality of the plugin.
+ *
+ * Defines the plugin name, version, and two examples hooks for how to
+ * enqueue the admin-specific stylesheet and JavaScript.
+ *
+ * @package    LD_Plant_Activity
+ * @subpackage LD_Plant_Activity/admin
+ * @author     Your Name <email@example.com>
+ */
+class LD_Plant_Activity_Admin {
+
+	/**
+	 * The ID of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      string    $ld_plant_activity    The ID of this plugin.
+	 */
+	private $ld_plant_activity;
+
+	/**
+	 * The version of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      string    $version    The current version of this plugin.
+	 */
+	private $version;
+
+	/**
+	 * Initialize the class and set its properties.
+	 *
+	 * @since    1.0.0
+	 * @param      string    $ld_plant_activity       The name of this plugin.
+	 * @param      string    $version    The version of this plugin.
+	 */
+	public function __construct( $ld_plant_activity, $version ) {
+
+		$this->ld_plant_activity = $ld_plant_activity;
+		$this->version = $version;
+
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_styles' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+
+		// add_filter( 'learndash_submenu', [ $this, 'add_ld_submenu' ] );
+	}
+	
+
+	/**
+	 * Register the stylesheets for the admin area.
+	 *
+	 * @since    1.0.0
+	 */
+	public function enqueue_styles() {
+
+		/**
+		 * This function is provided for demonstration purposes only.
+		 *
+		 * An instance of this class should be passed to the run() function
+		 * defined in Plugin_Name_Loader as all of the hooks are defined
+		 * in that particular class.
+		 *
+		 * The Plugin_Name_Loader will then create the relationship
+		 * between the defined hooks and the functions defined in this
+		 * class.
+		 */
+
+		wp_enqueue_style( $this->ld_plant_activity, plugin_dir_url( __FILE__ ) . 'css/ld-plant-activity-admin.css', array(), $this->version, 'all' );
+
+	}
+
+	/**
+	 * Register the JavaScript for the admin area.
+	 *
+	 * @since    1.0.0
+	 */
+	public function enqueue_scripts() {
+
+		/**
+		 * This function is provided for demonstration purposes only.
+		 *
+		 * An instance of this class should be passed to the run() function
+		 * defined in Plugin_Name_Loader as all of the hooks are defined
+		 * in that particular class.
+		 *
+		 * The Plugin_Name_Loader will then create the relationship
+		 * between the defined hooks and the functions defined in this
+		 * class.
+		 */
+
+		wp_enqueue_script( $this->ld_plant_activity, plugin_dir_url( __FILE__ ) . 'js/ld-plant-activity-admin.js', array( 'jquery' ), $this->version, false );
+
+	}
+
+	// public function add_ld_submenu( $submenu ) {
+	// 	$menu = array(
+	// 		'ld-plant-activity' => array(
+	// 			'name' => __( 'Plant Activity', 'ld-plant-activity' ),
+	// 			'cap'  => 'manage_options',
+	// 			'link' => 'edit.php?post_type=plant-activity',
+	// 		),
+	// 	);
+
+	// 	array_splice( $submenu, 9, 0, $menu );
+
+	// 	return $submenu;
+	// }
+
+	// public function add_ld_submenu( $submenu ) {
+	// 	$submenu[] = array(
+	// 		'parent_slug' => 'learndash-lms',
+	// 		'page_title'  => 'Plant Activity',
+	// 		'menu_title'  => 'Plant Activity',
+	// 		'capability'  => 'manage_options',
+	// 		'menu_slug'   => 'ldlms-plant-activity',
+	// 		'function'    => [ $this, 'render_admin_page' ],
+	// 	);
+	// 	return $submenu;
+	// }
+
+	// public function render_admin_page() {
+	// 	include_once plugin_dir_path( __FILE__ ) . 'partials/ld-plant-activity-admin-display.php';
+	// }
+
+	public function add_columns( $columns ) {
+		unset( $columns['title'] );
+		unset( $columns['date'] );
+
+		$columns['user']               = 'User';
+		$columns['lesson']             = 'Module';
+		$columns['activity_status']    = 'Status';
+		$columns['activity_started']   = 'Started';
+		$columns['activity_completed'] = 'Completed';
+		$columns['activity_updated']   = 'Updated';
+		
+		return $columns;
+	}
+
+	public function show_column_data( $column, $post_id ) {
+		switch ( $column ) {
+			case 'user':
+				$user_id = get_post_meta( $post_id, '_user_id', true );
+				if ( $user_id ) {
+					$user = get_userdata( $user_id );
+					echo esc_html( $user ? $user->display_name : '—' );
+				} else {
+					echo '—';
+				}
+				break;
+
+			case 'lesson':
+				$lesson_id = get_post_meta( $post_id, '_lesson_id', true );
+				echo esc_html( $lesson_id ? get_the_title( $lesson_id ) : '—' );
+				break;
+
+			case 'activity_status':
+				$status = get_post_meta( $post_id, '_activity_status', true );
+				echo $status ? 'Completed' : 'Pending';
+				break;
+
+			case 'activity_started':
+			case 'activity_completed':
+			case 'activity_updated':
+				$ts = get_post_meta( $post_id, "_$column", true );
+				echo $ts ? esc_html( date( 'Y-m-d H:i:s', intval( $ts ) ) ) : '—';
+				break;
+		}
+	}
+}
