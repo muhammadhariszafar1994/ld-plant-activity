@@ -145,6 +145,7 @@ class LD_Plant_Activity_Admin {
 		$columns['activity_started']   = 'Started';
 		$columns['activity_completed'] = 'Completed';
 		$columns['activity_updated']   = 'Updated';
+		$columns['actions']   = 'Actions';
 		
 		return $columns;
 	}
@@ -178,5 +179,36 @@ class LD_Plant_Activity_Admin {
 				echo $ts ? esc_html( date( 'Y-m-d H:i:s', intval( $ts ) ) ) : '—';
 				break;
 		}
+	}
+
+	public function add_plant_activity_shortcode($settings_fields = array(), $settings_section_key = '') {
+		if ($settings_section_key !== 'learndash-lesson-display-content-settings') {
+			return $settings_fields;
+		}
+
+		$post_id = get_the_ID();
+		if (!$post_id) return $settings_fields;
+
+		// $selected_template = get_post_meta($post_id, '_selected_template_file', true);
+		// $templates = [
+		// 	'modal-template-1.html' => 'First Modal Template',
+		// 	'modal-template-2.html' => 'Second Cards Template',
+		// 	'modal-template-3.html' => 'Third Modal Template',
+		// ];
+
+		ob_start();
+	?>
+
+	<?php
+
+		$settings_fields['plant_activity'] = array(
+			'name' => 'plant_activity',
+			'type' => 'custom',
+			'label' => 'Plant Activity',
+			'help_text' => 'Choose which template to use for this lesson.',
+			'html' => ob_get_clean(),
+		);
+
+		return $settings_fields;
 	}
 }

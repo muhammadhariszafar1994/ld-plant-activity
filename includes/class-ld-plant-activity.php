@@ -151,7 +151,6 @@ class LD_Plant_Activity {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
-
 		$plugin_admin = new LD_Plant_Activity_Admin( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
@@ -159,6 +158,8 @@ class LD_Plant_Activity {
 
 		$this->loader->add_filter( 'manage_sfwd-plant-activity_posts_columns', $plugin_admin, 'add_columns' );
 		$this->loader->add_action( 'manage_sfwd-plant-activity_posts_custom_column', $plugin_admin, 'show_column_data', 10, 2 );
+
+		$this->loader->add_filter('learndash_settings_fields', $plugin_admin, 'add_plant_activity_shortcode', 10, 2);
 	}
 
 	/**
@@ -169,7 +170,6 @@ class LD_Plant_Activity {
 	 * @access   private
 	 */
 	private function define_public_hooks() {
-
 		$plugin_public = new LD_Plant_Activity_Public( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
@@ -180,8 +180,8 @@ class LD_Plant_Activity {
 		// just for the testing purpose
 		$this->loader->add_action( 'save_post', $plugin_public, 'save_plant_activity_meta', 10, 3 );
 
-		$this->loader->add_action( 'wp_ajax_save_sfwd_plant_activity', $plugin_public, 'save_sfwd_plant_activity' );
-		$this->loader->add_action( 'wp_ajax_nopriv_save_sfwd_plant_activity', $plugin_public, 'save_sfwd_plant_activity'	 );
+		$this->loader->add_action( 'wp_ajax_save_sfwd_plant_activity', $plugin_public, 'save_sfwd_plant_activity_handler' );
+		$this->loader->add_action( 'wp_ajax_nopriv_save_sfwd_plant_activity', $plugin_public, 'save_sfwd_plant_activity_handler' );
 	}
 
 	/**

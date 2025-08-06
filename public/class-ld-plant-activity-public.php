@@ -100,7 +100,7 @@ class LD_Plant_Activity_Public {
 		wp_enqueue_script( $this->ld_plant_activity, plugin_dir_url( __FILE__ ) . 'js/ld-plant-activity-public.js', array( 'jquery' ), $this->version, false );
 
 		// react game build
-		wp_enqueue_script( 'plant-activity-app', plugin_dir_url(__FILE__) . 'build/static/js/main.42057914.js', [], '1.0.0', true );
+		wp_enqueue_script( 'plant-activity-app', plugin_dir_url(__FILE__) . 'build/static/js/main.c14c425a.js', [], '1.0.0', true );
 		wp_localize_script( 'plant-activity-app', 'LDPlantActivityData', [
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'plant_activity_nonce' ),
@@ -135,6 +135,10 @@ class LD_Plant_Activity_Public {
 					'supports'            => array( 'title', 'editor', 'thumbnail' ),
 					'menu_position'       => 35,
 					'menu_icon'           => 'dashicons-admin-site-alt',
+					'map_meta_cap' => true,
+					'capabilities'    => array(
+						'create_posts' => false,
+					),
 				),
 			),
 		);
@@ -174,11 +178,8 @@ class LD_Plant_Activity_Public {
 		update_post_meta( $post_id, '_activity_updated', time() );
 	}
 
-	public function save_sfwd_plant_activity() {
-		// Nonce check.
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'save_plant_activity_nonce' ) ) {
-			wp_send_json_error( [ 'message' => 'Invalid nonce' ], 403 );
-		}
+	public function save_sfwd_plant_activity_handler($data) {
+		check_ajax_referer( 'plant_activity_nonce', '_wpnonce' );
 
 		// Require login
 		if ( ! is_user_logged_in() ) {
@@ -238,8 +239,8 @@ class LD_Plant_Activity_Public {
 	public function react_enqueue_scripts() {
 		wp_enqueue_script(
 			'plant-grow-react-app',
-			plugin_dir_url(__FILE__) . 'build/static/js/main.42057914.js',
-			array(), // add ['wp-element'] if using React from WP
+			plugin_dir_url(__FILE__) . 'build/static/js/main.c14c425a.js',
+			array(),
 			null,
 			true
 		);
@@ -248,7 +249,7 @@ class LD_Plant_Activity_Public {
 	public function react_enqueue_styles() {
 		wp_enqueue_style(
 			'plant-grow-react-style',
-			plugin_dir_url(__FILE__) . 'css/main.css'
+			plugin_dir_url(__FILE__) . 'build/static/css/main.12e4b0b4.css'
 		);
 	}
 
@@ -257,6 +258,6 @@ class LD_Plant_Activity_Public {
 		$this->react_enqueue_scripts();
 		$this->react_enqueue_styles();
 
-		return '<div id="react-app"></div>';
+		return '<div id="root" style="width:100%!important;max-width:100%;"></div>';
 	}
 }
