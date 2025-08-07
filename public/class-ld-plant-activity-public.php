@@ -149,34 +149,34 @@ class LD_Plant_Activity_Public {
 	}
 
 	// just for the testing purpose
-	public function save_plant_activity_meta( $post_id, $post, $update ) {
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			return;
-		}
+	// public function save_plant_activity_meta( $post_id, $post, $update ) {
+	// 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+	// 		return;
+	// 	}
 
-		if ( $post->post_type !== 'sfwd-plant-activity' ) {
-			return;
-		}
+	// 	if ( $post->post_type !== 'sfwd-plant-activity' ) {
+	// 		return;
+	// 	}
 
-		if ( $update ) {
-			return;
-		}
+	// 	if ( $update ) {
+	// 		return;
+	// 	}
 
-		if ( in_array( 'subscriber', (array) $current_user->roles ) ) {
-			return;
-		}
+	// 	if ( in_array( 'subscriber', (array) $current_user->roles ) ) {
+	// 		return;
+	// 	}
 
-		$current_user = wp_get_current_user();
-		update_post_meta( $post_id, '_user_id', $current_user->ID );
+	// 	$current_user = wp_get_current_user();
+	// 	update_post_meta( $post_id, '_user_id', $current_user->ID );
 
-		$lesson_id = isset($_POST['related_lesson_id']) ? intval($_POST['related_lesson_id']) : 0;
-		update_post_meta( $post_id, '_lesson_id', $lesson_id );
+	// 	$lesson_id = isset($_POST['related_lesson_id']) ? intval($_POST['related_lesson_id']) : 0;
+	// 	update_post_meta( $post_id, '_lesson_id', $lesson_id );
 
-		update_post_meta( $post_id, '_activity_status', 0 );
-		update_post_meta( $post_id, '_activity_started', time() );
-		update_post_meta( $post_id, '_activity_completed', '' );
-		update_post_meta( $post_id, '_activity_updated', time() );
-	}
+	// 	update_post_meta( $post_id, '_activity_status', 0 );
+	// 	update_post_meta( $post_id, '_activity_started', time() );
+	// 	update_post_meta( $post_id, '_activity_completed', '' );
+	// 	update_post_meta( $post_id, '_activity_updated', time() );
+	// }
 
 	public function save_sfwd_plant_activity_handler($data) {
 		check_ajax_referer( 'plant_activity_nonce', '_wpnonce' );
@@ -206,8 +206,22 @@ class LD_Plant_Activity_Public {
 			]
 		] );
 
+		$now = time();
+
 		if ( ! empty( $existing ) ) {
-			wp_send_json_error( [ 'message' => 'Activity already exists for this lesson.' ] );
+			$post_id = $existing[0];
+
+			// Update only relevant meta
+			update_post_meta( $post_id, '_activity_updated', $now );
+
+			// Optional: update status, completed flag, etc.
+			// update_post_meta( $post_id, '_activity_status', 1 );
+			// update_post_meta( $post_id, '_activity_completed', $now );
+
+			wp_send_json_success( [
+				'message' => 'Activity already exists and was updated.',
+				'post_id' => $post_id,
+			] );
 		}
 
 		$post_id = wp_insert_post( [
@@ -237,22 +251,12 @@ class LD_Plant_Activity_Public {
 	}
 
 	public function react_enqueue_scripts() {
-		wp_enqueue_script(
-			'plant-grow-react-app',
-			plugin_dir_url(__FILE__) . 'build/static/js/main.c14c425a.js',
-			array(),
-			null,
-			true
-		);
+		wp_enqueue_script( 'plant-grow-react-app', plugin_dir_url(__FILE__) . 'build/static/js/main.c14c425a.js', array(), null, true );
 	}
 
 	public function react_enqueue_styles() {
-		wp_enqueue_style(
-			'plant-grow-react-style',
-			plugin_dir_url(__FILE__) . 'build/static/css/main.12e4b0b4.css'
-		);
+		wp_enqueue_style( 'plant-grow-react-style', plugin_dir_url(__FILE__) . 'build/static/css/main.12e4b0b4.css' );
 	}
-
 
 	public function render_react_app() {
 		$this->react_enqueue_scripts();

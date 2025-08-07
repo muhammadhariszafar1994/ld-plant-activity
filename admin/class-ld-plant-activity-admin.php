@@ -57,7 +57,6 @@ class LD_Plant_Activity_Admin {
 
 		// add_filter( 'learndash_submenu', [ $this, 'add_ld_submenu' ] );
 	}
-	
 
 	/**
 	 * Register the stylesheets for the admin area.
@@ -181,34 +180,63 @@ class LD_Plant_Activity_Admin {
 		}
 	}
 
-	public function add_plant_activity_shortcode($settings_fields = array(), $settings_section_key = '') {
-		if ($settings_section_key !== 'learndash-lesson-display-content-settings') {
-			return $settings_fields;
+	public function add_custom_field( $setting_option_fields = array(), $settings_metabox_key = '' ) {
+		if ( 'learndash-lesson-display-content-settings' === $settings_metabox_key ) {
+			$post_id = get_the_ID();
+			if ( !$post_id ) return $setting_option_fields;
+			
+			$plant_activity_checkbox_value = get_post_meta( $post_id, '_plant_activity_key', true );
+
+			if ( empty( $plant_activity_checkbox_value ) ) {
+				$plant_activity_checkbox_value = '';
+			}
+
+			$setting_option_fields['plant-activity-switch'] = array(
+				'name'      => 'plant-activity-switch',
+				'label'     => esc_html__( 'Plant Activity', 'learndash' ),
+				'type'      => 'checkbox-switch',
+				'value'     => $plant_activity_checkbox_value === 'yes' ? 'yes' : '',
+				'default'   => '',
+				'options'   => array(
+					'yes' => '',
+				),
+				'help_text' => esc_html__( 'Enable this option to force the module timer.', 'learndash' ),
+			);
+			
+			// $setting_option_fields['plant-activity-extra-html'] = array(
+			// 	'type'  => 'html',
+			// 	'value' => '<label class="learndash-custom-note">Use shortcode: <code>&#91;plant_activity_react_app&#93;</code></label>',
+			// );
 		}
 
-		$post_id = get_the_ID();
-		if (!$post_id) return $settings_fields;
+		return $setting_option_fields;
+	}
 
-		// $selected_template = get_post_meta($post_id, '_selected_template_file', true);
-		// $templates = [
-		// 	'modal-template-1.html' => 'First Modal Template',
-		// 	'modal-template-2.html' => 'Second Cards Template',
-		// 	'modal-template-3.html' => 'Third Modal Template',
-		// ];
+	public function save_my_custom_meta( $post_id ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
 
-		ob_start();
-	?>
+		if (isset($_POST['learndash-lesson-display-content-settings']['plant-activity-switch'])) {
+			update_post_meta( $post_id, '_plant_activity_key', 'yes' );
+		}
+		else {
+			update_post_meta( $post_id, '_plant_activity_key', '' );
+		}
+	}
 
-	<?php
+	public function append_plant_activity_shortcode_if_enabled($content) {
+		if (is_singular('sfwd-lessons')) {
+			global $post;
 
-		$settings_fields['plant_activity'] = array(
-			'name' => 'plant_activity',
-			'type' => 'custom',
-			'label' => 'Plant Activity',
-			'help_text' => 'Choose which template to use for this lesson.',
-			'html' => ob_get_clean(),
-		);
+			$enabled = get_post_meta($post->ID, '_plant_activity_key', true);
+			
+			if ($enabled === 'yes') {
+				$shortcode_output = do_shortcode('[plant_activity_react_app]');
+				$content .= $shortcode_output;
+			}
+		}
 
-		return $settings_fields;
+		return $content;
 	}
 }
