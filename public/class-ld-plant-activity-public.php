@@ -104,6 +104,7 @@ class LD_Plant_Activity_Public {
 		wp_localize_script( 'plant-activity-app', 'LDPlantActivityData', [
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'plant_activity_nonce' ),
+			'post_id'  => get_the_ID()
 		] );
 	}
 
@@ -194,6 +195,9 @@ class LD_Plant_Activity_Public {
 		}
 
 		$lesson_id = isset( $_POST['lesson_id'] ) ? intval( $_POST['lesson_id'] ) : 0;
+		if ( ! $lesson_id ) {
+			wp_send_json_error( [ 'message' => 'Lesson ID is required' ], 400 );
+		}
 
 		$existing = get_posts( [
 			'post_type'   => 'sfwd-plant-activity',
@@ -250,6 +254,133 @@ class LD_Plant_Activity_Public {
 		] );
 	}
 
+	public function complete_sfwd_plant_activity_handler() {
+		check_ajax_referer( 'plant_activity_nonce', '_wpnonce' );
+
+		// Require login
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error( [ 'message' => 'Not logged in' ], 401 );
+		}
+
+		$current_user = wp_get_current_user();
+
+		// Role check
+		if ( ! in_array( 'subscriber', (array) $current_user->roles, true ) ) {
+			wp_send_json_error( [ 'message' => 'Only subscribers can complete activity' ], 403 );
+		}
+
+		$lesson_id = isset( $_POST['lesson_id'] ) ? intval( $_POST['lesson_id'] ) : 0;
+		if ( ! $lesson_id ) {
+			wp_send_json_error( [ 'message' => 'Lesson ID is required' ], 400 );
+		}
+
+		// Find existing activity
+		$existing = get_posts( [
+			'post_type'   => 'sfwd-plant-activity',
+			'post_status' => 'publish',
+			'numberposts' => 1,
+			'fields'      => 'ids',
+			'meta_query'  => [
+				[ 'key' => '_user_id', 'value' => $current_user->ID ],
+				[ 'key' => '_lesson_id', 'value' => $lesson_id ],
+			]
+		] );
+
+		if ( empty( $existing ) ) {
+			wp_send_json_error( [ 'message' => 'No existing activity found to complete' ], 404 );
+		}
+
+		$post_id = $existing[0];
+		$now = time();
+
+		// Mark complete
+		update_post_meta( $post_id, '_activity_status', 1 );
+		update_post_meta( $post_id, '_activity_completed', $now );
+		update_post_meta( $post_id, '_activity_updated', $now );
+
+		wp_send_json_success( [
+			'message' => 'Activity marked as completed',
+			'post_id' => $post_id,
+			'completed_at' => date( 'Y-m-d H:i:s', $now ),
+		] );
+	}
+
+	public function sfwd_plant_activity_statistic_handler() {
+		check_ajax_referer( 'plant_activity_nonce', '_wpnonce' );
+
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error( [ 'message' => 'Not logged in' ], 401 );
+		}
+
+		$current_user = wp_get_current_user();
+
+		if ( ! in_array( 'subscriber', (array) $current_user->roles, true ) ) {
+			wp_send_json_error( [ 'message' => 'Only subscribers can update activity' ], 403 );
+		}
+
+		$lesson_id = isset( $_POST['lesson_id'] ) ? intval( $_POST['lesson_id'] ) : 0;
+		if ( ! $lesson_id ) {
+			wp_send_json_error( [ 'message' => 'Lesson ID is required' ], 400 );
+		}
+
+		// Find existing activity
+		$existing = get_posts( [
+			'post_type'   => 'sfwd-plant-activity',
+			'post_status' => 'publish',
+			'numberposts' => 1,
+			'fields'      => 'ids',
+			'meta_query'  => [
+				[ 'key' => '_user_id', 'value' => $current_user->ID ],
+				[ 'key' => '_lesson_id', 'value' => $lesson_id ],
+			]
+		] );
+
+		if ( empty( $existing ) ) {
+			wp_send_json_error( [ 'message' => 'No existing activity found' ], 404 );
+		}
+
+		$post_id = $existing[0];
+
+		// Water
+		if ( isset( $_POST['water_progress'] ) ) {
+			update_post_meta( $post_id, '_water_progress', intval( $_POST['water_progress'] ) );
+		}
+		if ( isset( $_POST['water_points'] ) ) {
+			update_post_meta( $post_id, '_water_points', intval( $_POST['water_points'] ) );
+		}
+
+		// Sun
+		if ( isset( $_POST['sun_progress'] ) ) {
+			update_post_meta( $post_id, '_sun_progress', intval( $_POST['sun_progress'] ) );
+		}
+		if ( isset( $_POST['sun_points'] ) ) {
+			update_post_meta( $post_id, '_sun_points', intval( $_POST['sun_points'] ) );
+		}
+
+		// Nutrients (expecting 3 separate values from frontend)
+		if ( isset( $_POST['nutrient_progress'] ) ) {
+			update_post_meta( $post_id, '_nutrient_progress', intval( $_POST['nutrient_progress'] ) );
+		}
+		if ( isset( $_POST['nutrient_points'] ) ) {
+			update_post_meta( $post_id, '_nutrient_points', intval( $_POST['nutrient_points'] ) );
+		}
+
+		// Dead leaves / purines
+		if ( isset( $_POST['dead_leaves_progress'] ) ) {
+			update_post_meta( $post_id, '_dead_leaves_progress', intval( $_POST['dead_leaves_progress'] ) );
+		}
+		if ( isset( $_POST['dead_leaves_points'] ) ) {
+			update_post_meta( $post_id, '_dead_leaves_points', intval( $_POST['dead_leaves_points'] ) );
+		}
+
+		update_post_meta( $post_id, '_activity_updated', time() );
+
+		wp_send_json_success( [
+			'message' => 'Activity updated',
+			'post_id' => $post_id,
+		] );
+	}
+
 	public function react_enqueue_scripts() {
 		wp_enqueue_script( 'plant-grow-react-app', plugin_dir_url(__FILE__) . 'build/static/js/main.c14c425a.js', array(), null, true );
 	}
@@ -258,10 +389,67 @@ class LD_Plant_Activity_Public {
 		wp_enqueue_style( 'plant-grow-react-style', plugin_dir_url(__FILE__) . 'build/static/css/main.12e4b0b4.css' );
 	}
 
-	public function render_react_app() {
+	public function render_react_app($atts) {
 		$this->react_enqueue_scripts();
 		$this->react_enqueue_styles();
 
-		return '<div id="root" style="width:100%!important;max-width:100%;"></div>';
+		$atts = shortcode_atts([
+			'lesson_id' => 0,
+		], $atts, 'plant_activity_react_app');
+
+		$lesson_id = intval($atts['lesson_id']);
+
+		return '<div id="root" style="width:100%!important;max-width:100%;" data-lesson-id="' . esc_attr($lesson_id) . '"></div>';
+	}
+
+	// public function append_plant_activity_shortcode_if_enabled($content) {
+	// 	if (is_singular('sfwd-lessons')) {
+	// 		global $post;
+
+	// 		$enabled = get_post_meta($post->ID, '_plant_activity_key', true);
+			
+	// 		if ($enabled === 'yes') {
+	// 			$shortcode_output = do_shortcode('[plant_activity_react_app]');
+	// 			$content .= $shortcode_output;
+	// 		}
+	// 	}
+
+	// 	return $content;
+	// }
+
+	public function append_plant_activity_shortcode_if_enabled($content) {
+		if (is_singular('sfwd-lessons')) {
+			global $post;
+
+			$enabled = get_post_meta($post->ID, '_plant_activity_key', true);
+
+			if ($enabled === 'yes') {
+				$custom_page_url = add_query_arg([
+					'plant_activity' => 'yes',
+					'lesson_id'      => $post->ID
+				], site_url('/index.php'));
+
+				$button_html = '<a href="' . esc_url($custom_page_url) . '" 
+					style="display:inline-block;padding:10px 20px;background:#4CAF50;color:#fff;
+					text-decoration:none;border-radius:5px;" target="_blank">
+					Start Plant Activity
+				</a>';
+
+				$content .= $button_html;
+			}
+		}
+
+		return $content;
+	}
+
+	public function maybe_load_plant_activity_template() {
+		if ( isset($_GET['plant_activity']) && $_GET['plant_activity'] === 'yes' ) {
+			status_header(200);
+			nocache_headers();
+
+			include plugin_dir_path(__FILE__) . 'index.php';
+			
+			exit;
+		}
 	}
 }
