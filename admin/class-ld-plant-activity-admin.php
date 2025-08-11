@@ -100,8 +100,22 @@ class LD_Plant_Activity_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->ld_plant_activity, plugin_dir_url( __FILE__ ) . 'js/ld-plant-activity-admin.js', array( 'jquery' ), $this->version, false );
-
+		wp_enqueue_script( 
+			$this->ld_plant_activity, 
+			plugin_dir_url( __FILE__ ) . 'js/ld-plant-activity-admin.js', 
+			[ 'jquery' ], 
+			$this->version, 
+			true 
+		);
+	
+		wp_localize_script( 
+			$this->ld_plant_activity, 
+			'PlantActivityStats', 
+			[
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'plant_activity_nonce' )
+			]
+		);
 	}
 
 	// public function add_ld_submenu( $submenu ) {
@@ -235,12 +249,10 @@ class LD_Plant_Activity_Admin {
 	public function add_plant_activity_modal_statistic() {
 		$screen = get_current_screen();
 
-		// Only load on plant activity list page
 		if ( 'edit-sfwd-plant-activity' !== $screen->id ) {
 			return;
 		}
 
-		// Modal HTML output
 		?>
 		<div id="statistic-modal" style="display:none;">
 			<div id="statistic-modal-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;"></div>
@@ -251,21 +263,6 @@ class LD_Plant_Activity_Admin {
 			</div>
 		</div>
 		<?php
-
-		// Enqueue the JS file
-		wp_enqueue_script(
-			'plant-activity-modal',
-			plugin_dir_url( __FILE__ ) . 'admin/js/ld-plant-activity-admin.js',
-			[ 'jquery' ],
-			'1.0',
-			true
-		);
-
-		// Localize data to the JS
-		wp_localize_script( 'plant-activity-modal', 'PlantActivityStats', [
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'nonce'    => wp_create_nonce( 'plant_activity_nonce' )
-		]);
 	}
 
 	public function ajax_get_plant_activity_statistics() {
@@ -278,7 +275,6 @@ class LD_Plant_Activity_Admin {
 			wp_send_json_error( [ 'message' => 'Invalid request' ] );
 		}
 
-		// Example: Fetch stats from post/user meta
 		$stats = [
 			'water_progress'       => get_user_meta( $user_id, 'water_progress_' . $lesson_id, true ),
 			'water_points'         => get_user_meta( $user_id, 'water_points_' . $lesson_id, true ),
@@ -292,5 +288,4 @@ class LD_Plant_Activity_Admin {
 
 		wp_send_json_success( [ 'stats' => $stats ] );
 	}
-
 }

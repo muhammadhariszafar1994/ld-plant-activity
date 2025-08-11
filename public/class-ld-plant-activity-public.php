@@ -447,7 +447,7 @@ class LD_Plant_Activity_Public {
 			status_header(200);
 			nocache_headers();
 
-			include plugin_dir_path(__FILE__) . 'index.php';
+			include plugin_dir_path(__FILE__) . 'templates/plant-activity-template.php';
 			
 			exit;
 		}
