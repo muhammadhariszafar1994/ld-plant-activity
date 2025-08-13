@@ -4,17 +4,20 @@
     $referer = wp_get_referer();
 
     if ( ! is_user_logged_in() ) {
-        
+        wp_redirect( $referer );
+        exit;
     }
 
     $current_user = wp_get_current_user();
     if ( ! in_array( 'subscriber', (array) $current_user->roles, true ) ) {
-        
+        wp_redirect( $referer );
+        exit;
     }
 
     $lesson_id = isset($_GET['lesson_id']) ? intval($_GET['lesson_id']) : 0;
     if ( ! $lesson_id ) {
-        
+        wp_redirect( $referer );
+        exit;
     }
 
     // $existing = get_posts( [
@@ -45,7 +48,11 @@
                             LIMIT 1
                         ", $current_user->ID, $lesson_id));
 
-    if ( $enabled === 'yes' && $activity_status === '0' && !learndash_is_lesson_complete($current_user->ID, $lesson_id) ) {
+    if (
+        $enabled === 'yes' 
+        && $activity_status !== '1'
+        && !learndash_is_lesson_complete($current_user->ID, $lesson_id) 
+    ) {
 ?>
 
 <!DOCTYPE html>
@@ -62,7 +69,8 @@
             <?php
                 if (isset($_GET['lesson_id'])) {
                     echo do_shortcode('[plant_activity_react_app lesson_id="' . intval($_GET['lesson_id']) . '"]');
-                } else {
+                } 
+                else {
                     echo do_shortcode('[plant_activity_react_app]');
                 }
             ?>

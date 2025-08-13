@@ -84,7 +84,6 @@ class LD_Plant_Activity_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-
 		/**
 		 * This function is provided for demonstration purposes only.
 		 *
@@ -99,8 +98,7 @@ class LD_Plant_Activity_Public {
 
 		wp_enqueue_script( $this->ld_plant_activity, plugin_dir_url( __FILE__ ) . 'js/ld-plant-activity-public.js', array( 'jquery' ), $this->version, false );
 
-		// react game build
-		wp_enqueue_script( 'plant-activity-app', plugin_dir_url(__FILE__) . 'build/static/js/main.c14c425a.js', [], '1.0.0', true );
+		wp_enqueue_script( 'plant-activity-app', plugin_dir_url(__FILE__) . 'build/static/js/main.317554a0.js', [], '1.0.0', true );
 		wp_localize_script( 'plant-activity-app', 'LDPlantActivityData', [
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'plant_activity_nonce' ),
@@ -373,6 +371,14 @@ class LD_Plant_Activity_Public {
 			update_post_meta( $post_id, '_dead_leaves_points', intval( $_POST['dead_leaves_points'] ) );
 		}
 
+		// Total progress
+		if ( isset( $_POST['total_progress'] ) ) {
+			update_post_meta( $post_id, '_total_progress', intval( $_POST['total_progress'] ) );
+		}
+		if ( isset( $_POST['total_points'] ) ) {
+			update_post_meta( $post_id, '_total_points', intval( $_POST['total_points'] ) );
+		}
+
 		update_post_meta( $post_id, '_activity_updated', time() );
 
 		wp_send_json_success( [
@@ -382,11 +388,11 @@ class LD_Plant_Activity_Public {
 	}
 
 	public function react_enqueue_scripts() {
-		wp_enqueue_script( 'plant-grow-react-app', plugin_dir_url(__FILE__) . 'build/static/js/main.c14c425a.js', array(), null, true );
+		wp_enqueue_script( 'plant-grow-react-app', plugin_dir_url(__FILE__) . 'build/static/js/main.317554a0.js', array(), null, true );
 	}
 
 	public function react_enqueue_styles() {
-		wp_enqueue_style( 'plant-grow-react-style', plugin_dir_url(__FILE__) . 'build/static/css/main.12e4b0b4.css' );
+		wp_enqueue_style( 'plant-grow-react-style', plugin_dir_url(__FILE__) . 'build/static/css/main.3cdaf030.css' );
 	}
 
 	public function render_react_app($atts) {
@@ -420,10 +426,33 @@ class LD_Plant_Activity_Public {
 	public function append_plant_activity_shortcode_if_enabled($content) {
 		if (is_singular('sfwd-lessons')) {
 			global $post;
+			global $wpdb;
 
 			$enabled = get_post_meta($post->ID, '_plant_activity_key', true);
+			$current_user = wp_get_current_user();
+			$lesson_id = $post->ID;
 
-			if ($enabled === 'yes') {
+			$activity_status = $wpdb->get_var($wpdb->prepare("
+                            SELECT pm_status.meta_value
+                            FROM {$wpdb->postmeta} pm_user
+                            INNER JOIN {$wpdb->postmeta} pm_lesson 
+                                ON pm_user.post_id = pm_lesson.post_id
+                            INNER JOIN {$wpdb->postmeta} pm_status 
+                                ON pm_user.post_id = pm_status.post_id
+                            WHERE pm_user.meta_key = '_user_id' 
+                            AND pm_user.meta_value = %d
+                            AND pm_lesson.meta_key = '_lesson_id'
+                            AND pm_lesson.meta_value = %d
+                            AND pm_status.meta_key = '_activity_status'
+                            LIMIT 1
+                        ", $current_user->ID, $lesson_id));
+
+			if ( 
+				$enabled === 'yes' 
+				&& $activity_status !== '1' 
+				&& !learndash_is_lesson_complete($current_user->ID, $lesson_id) 
+			) {
+			// if ($enabled === 'yes') {
 				$custom_page_url = add_query_arg([
 					'plant_activity' => 'yes',
 					'lesson_id'      => $post->ID

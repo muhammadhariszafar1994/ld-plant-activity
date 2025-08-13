@@ -275,15 +275,34 @@ class LD_Plant_Activity_Admin {
 			wp_send_json_error( [ 'message' => 'Invalid request' ] );
 		}
 
+		$existing = get_posts( [
+			'post_type'   => 'sfwd-plant-activity',
+			'post_status' => 'publish',
+			'numberposts' => 1,
+			'fields'      => 'ids',
+			'meta_query'  => [
+				[ 'key' => '_user_id', 'value' => $user_id ],
+				[ 'key' => '_lesson_id', 'value' => $lesson_id ],
+			]
+		] );
+
+		if ( empty( $existing ) ) {
+			wp_send_json_error( [ 'message' => 'No existing activity found' ], 404 );
+		}
+
+		$post_id = $existing[0];
+
 		$stats = [
-			'water_progress'       => get_user_meta( $user_id, 'water_progress_' . $lesson_id, true ),
-			'water_points'         => get_user_meta( $user_id, 'water_points_' . $lesson_id, true ),
-			'sun_progress'         => get_user_meta( $user_id, 'sun_progress_' . $lesson_id, true ),
-			'sun_points'           => get_user_meta( $user_id, 'sun_points_' . $lesson_id, true ),
-			'nutrient_progress'    => get_user_meta( $user_id, 'nutrient_progress_' . $lesson_id, true ),
-			'nutrient_points'      => get_user_meta( $user_id, 'nutrient_points_' . $lesson_id, true ),
-			'dead_leaves_progress' => get_user_meta( $user_id, 'dead_leaves_progress_' . $lesson_id, true ),
-			'dead_leaves_points'   => get_user_meta( $user_id, 'dead_leaves_points_' . $lesson_id, true ),
+			'water_progress'       => get_post_meta( $post_id, '_water_progress', true ),
+			'water_points'         => get_post_meta( $post_id, '_water_points', true ),
+			'sun_progress'         => get_post_meta( $post_id, '_sun_progress', true ),
+			'sun_points'           => get_post_meta( $post_id, '_sun_points', true ),
+			'nutrient_progress'    => get_post_meta( $post_id, '_nutrient_progress', true ),
+			'nutrient_points'      => get_post_meta( $post_id, '_nutrient_points', true ),
+			'dead_leaves_progress' => get_post_meta( $post_id, '_dead_leaves_progress', true ),
+			'dead_leaves_points'   => get_post_meta( $post_id, '_dead_leaves_points', true ),
+			'total_progress' => get_post_meta( $post_id, '_total_progress', true ),
+			'total_points'   => get_post_meta( $post_id, '_total_points', true )
 		];
 
 		wp_send_json_success( [ 'stats' => $stats ] );
