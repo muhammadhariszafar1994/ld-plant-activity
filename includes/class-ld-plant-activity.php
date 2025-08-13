@@ -193,8 +193,11 @@ class LD_Plant_Activity {
 		$this->loader->add_action( 'wp_ajax_complete_sfwd_plant_activity', $plugin_public, 'complete_sfwd_plant_activity_handler' );
 		$this->loader->add_action( 'wp_ajax_nopriv_complete_sfwd_plant_activity', $plugin_public, 'complete_sfwd_plant_activity_handler' );
 
-		$this->loader->add_action( 'wp_ajax_sfwd_plant_activity_statistic', $plugin_public, 'sfwd_plant_activity_statistic_handler' );
-		$this->loader->add_action( 'wp_ajax_nopriv_sfwd_plant_activity_statistic', $plugin_public, 'sfwd_plant_activity_statistic_handler' );
+		$this->loader->add_action( 'wp_ajax_sfwd_save_plant_activity_statistic', $plugin_public, 'sfwd_save_plant_activity_statistic_handler' );
+		$this->loader->add_action( 'wp_ajax_nopriv_sfwd_save_plant_activity_statistic', $plugin_public, 'sfwd_save_plant_activity_statistic_handler' );
+
+		$this->loader->add_action( 'wp_ajax_sfwd_get_plant_activity_statistic', $plugin_public, 'sfwd_get_plant_activity_statistic_handler' );
+		$this->loader->add_action( 'wp_ajax_nopriv_sfwd_get_plant_activity_statistic', $plugin_public, 'sfwd_get_plant_activity_statistic_handler' );
 	}
 
 	/**
