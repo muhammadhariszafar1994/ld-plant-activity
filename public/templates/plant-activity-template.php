@@ -51,7 +51,7 @@
     if (
         $enabled === 'yes' 
         && $activity_status !== '1'
-        && !learndash_is_lesson_complete($current_user->ID, $lesson_id) 
+        && !learndash_is_lesson_complete($current_user->ID, $lesson_id)
     ) {
 ?>
 
@@ -64,7 +64,6 @@
         <?php wp_head(); ?>
     </head>
     <body <?php body_class(); ?>>
-
         <div id="plant-activity-container">
             <?php
                 if (isset($_GET['lesson_id'])) {
@@ -75,7 +74,6 @@
                 }
             ?>
         </div>
-
         <?php wp_footer(); ?>
     </body>
 </html>
