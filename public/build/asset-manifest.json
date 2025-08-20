@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/css/main.d93c8747.css",
-    "main.js": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/main.90a7fa3b.js",
+    "main.js": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/main.c6f0ec4b.js",
     "static/js/453.bfb9445a.chunk.js": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/453.bfb9445a.chunk.js",
     "static/media/video-background-2.mp4": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/media/video-background-2.69a9281816baf56826dc.mp4",
     "static/media/rain.png": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/media/rain.80db68ee57a430133fc6.png",
@@ -12,11 +12,11 @@
     "static/media/magnesium.png": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/media/magnesium.4869fc422cb6654aaa35.png",
     "index.html": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/index.html",
     "main.d93c8747.css.map": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/css/main.d93c8747.css.map",
-    "main.90a7fa3b.js.map": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/main.90a7fa3b.js.map",
+    "main.c6f0ec4b.js.map": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/main.c6f0ec4b.js.map",
     "453.bfb9445a.chunk.js.map": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/453.bfb9445a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.d93c8747.css",
-    "static/js/main.90a7fa3b.js"
+    "static/js/main.c6f0ec4b.js"
   ]
 }

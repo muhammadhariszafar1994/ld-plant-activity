@@ -98,7 +98,7 @@ class LD_Plant_Activity_Public {
 
 		wp_enqueue_script( $this->ld_plant_activity, plugin_dir_url( __FILE__ ) . 'js/ld-plant-activity-public.js', array( 'jquery' ), $this->version, false );
 
-		wp_enqueue_script( 'plant-activity-app', plugin_dir_url(__FILE__) . 'build/static/js/main.90a7fa3b.js', [], '1.0.0', true );
+		wp_enqueue_script( 'plant-activity-app', plugin_dir_url(__FILE__) . 'build/static/js/main.c6f0ec4b.js', [], '1.0.0', true );
 		wp_localize_script( 'plant-activity-app', 'LDPlantActivityData', [
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'plant_activity_nonce' ),
@@ -372,11 +372,15 @@ class LD_Plant_Activity_Public {
 		}
 
 		// Total progress
-		if ( isset( $_POST['total_progress'] ) ) {
-			update_post_meta( $post_id, '_total_progress', intval( $_POST['total_progress'] ) );
-		}
-		if ( isset( $_POST['total_points'] ) ) {
-			update_post_meta( $post_id, '_total_points', intval( $_POST['total_points'] ) );
+		// if ( isset( $_POST['total_progress'] ) ) {
+		// 	update_post_meta( $post_id, '_total_progress', intval( $_POST['total_progress'] ) );
+		// }
+		// if ( isset( $_POST['total_points'] ) ) {
+		// 	update_post_meta( $post_id, '_total_points', intval( $_POST['total_points'] ) );
+		// }
+
+		if ( isset( $_POST['total'] ) ) {
+			update_post_meta( $post_id, '_total', intval( $_POST['total'] ) );
 		}
 
 		update_post_meta( $post_id, '_activity_updated', time() );
@@ -433,8 +437,9 @@ class LD_Plant_Activity_Public {
 			'nutrient_points'    => get_post_meta( $post_id, '_nutrient_points', true ),
 			'dead_leaves_progress' => get_post_meta( $post_id, '_dead_leaves_progress', true ),
 			'dead_leaves_points' => get_post_meta( $post_id, '_dead_leaves_points', true ),
-			'total_progress'     => get_post_meta( $post_id, '_total_progress', true ),
-			'total_points'       => get_post_meta( $post_id, '_total_points', true ),
+			// 'total_progress'     => get_post_meta( $post_id, '_total_progress', true ),
+			// 'total_points'       => get_post_meta( $post_id, '_total_points', true ),
+			'total'       => get_post_meta( $post_id, '_total', true ),
 			'activity_updated'   => get_post_meta( $post_id, '_activity_updated', true ),
 		];
 
@@ -446,7 +451,7 @@ class LD_Plant_Activity_Public {
 
 
 	public function react_enqueue_scripts() {
-		wp_enqueue_script( 'plant-grow-react-app', plugin_dir_url(__FILE__) . 'build/static/js/main.90a7fa3b.js', array(), null, true );
+		wp_enqueue_script( 'plant-grow-react-app', plugin_dir_url(__FILE__) . 'build/static/js/main.c6f0ec4b.js', array(), null, true );
 	}
 
 	public function react_enqueue_styles() {

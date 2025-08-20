@@ -301,8 +301,9 @@ class LD_Plant_Activity_Admin {
 			'nutrient_points'      => get_post_meta( $post_id, '_nutrient_points', true ),
 			'dead_leaves_progress' => get_post_meta( $post_id, '_dead_leaves_progress', true ),
 			'dead_leaves_points'   => get_post_meta( $post_id, '_dead_leaves_points', true ),
-			'total_progress' => get_post_meta( $post_id, '_total_progress', true ),
-			'total_points'   => get_post_meta( $post_id, '_total_points', true )
+			// 'total_progress' => get_post_meta( $post_id, '_total_progress', true ),
+			// 'total_points'   => get_post_meta( $post_id, '_total_points', true )
+			'total'   => get_post_meta( $post_id, '_total', true )
 		];
 
 		wp_send_json_success( [ 'stats' => $stats ] );
