@@ -303,7 +303,8 @@ class LD_Plant_Activity_Admin {
 			'dead_leaves_points'   => get_post_meta( $post_id, '_dead_leaves_points', true ),
 			// 'total_progress' => get_post_meta( $post_id, '_total_progress', true ),
 			// 'total_points'   => get_post_meta( $post_id, '_total_points', true )
-			'total'   => get_post_meta( $post_id, '_total', true )
+			'total'   => get_post_meta( $post_id, '_total', true ),
+			'last_growth_point' => get_post_meta( $post_id, '_last_growth_point', true )
 		];
 
 		wp_send_json_success( [ 'stats' => $stats ] );

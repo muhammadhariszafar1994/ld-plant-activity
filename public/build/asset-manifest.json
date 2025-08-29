@@ -1,9 +1,9 @@
 {
   "files": {
-    "main.css": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/css/main.d93c8747.css",
-    "main.js": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/main.c6f0ec4b.js",
+    "main.css": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/css/main.5dc92bc1.css",
+    "main.js": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/main.b7eaddba.js",
     "static/js/453.bfb9445a.chunk.js": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/453.bfb9445a.chunk.js",
-    "static/media/video-background-2.mp4": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/media/video-background-2.69a9281816baf56826dc.mp4",
+    "static/media/video-background-3.mp4": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/media/video-background-3.927ac0d5e14b466fab41.mp4",
     "static/media/rain.png": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/media/rain.80db68ee57a430133fc6.png",
     "static/media/phosphorus.png": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/media/phosphorus.4aee0180af4755e20773.png",
     "static/media/potassium.png": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/media/potassium.9e3db8dea397d20cfa25.png",
@@ -11,12 +11,12 @@
     "static/media/nitrogen.png": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/media/nitrogen.0aebc04cb3d35959f387.png",
     "static/media/magnesium.png": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/media/magnesium.4869fc422cb6654aaa35.png",
     "index.html": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/index.html",
-    "main.d93c8747.css.map": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/css/main.d93c8747.css.map",
-    "main.c6f0ec4b.js.map": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/main.c6f0ec4b.js.map",
+    "main.5dc92bc1.css.map": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/css/main.5dc92bc1.css.map",
+    "main.b7eaddba.js.map": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/main.b7eaddba.js.map",
     "453.bfb9445a.chunk.js.map": "/wordpress/wp-content/plugins/ld-plant-activity/public/build/static/js/453.bfb9445a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.d93c8747.css",
-    "static/js/main.c6f0ec4b.js"
+    "static/css/main.5dc92bc1.css",
+    "static/js/main.b7eaddba.js"
   ]
 }
