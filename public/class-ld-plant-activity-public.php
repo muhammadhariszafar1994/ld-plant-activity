@@ -98,7 +98,7 @@ class LD_Plant_Activity_Public {
 
 		wp_enqueue_script( $this->ld_plant_activity, plugin_dir_url( __FILE__ ) . 'js/ld-plant-activity-public.js', array( 'jquery' ), $this->version, false );
 
-		wp_enqueue_script( 'plant-activity-app', plugin_dir_url(__FILE__) . 'build/static/js/main.b7eaddba.js', [], '1.0.0', true );
+		wp_enqueue_script( 'plant-activity-app', plugin_dir_url(__FILE__) . 'build/static/js/main.7d23a1d9.js', [], '1.0.0', true );
 		wp_localize_script( 'plant-activity-app', 'LDPlantActivityData', [
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'plant_activity_nonce' ),
@@ -285,8 +285,30 @@ class LD_Plant_Activity_Public {
 		] );
 
 		if ( empty( $existing ) ) {
-			wp_send_json_error( [ 'message' => 'No existing activity found to complete' ], 404 );
-		}
+            $post_id = wp_insert_post( [
+                'post_title'   => 'Plant Activity - ' . current_time( 'Y-m-d H:i:s' ),
+                'post_status'  => 'publish',
+                'post_type'    => 'sfwd-plant-activity',
+                'post_content' => '',
+            ] );
+            if ( is_wp_error( $post_id ) ) {
+                wp_send_json_error( [ 'message' => 'Failed to create activity' ], 500 );
+            }
+
+//            wp_send_json_error( [ 'message' => 'No existing activity found to complete' ], 404 );
+            $now = time();
+
+            update_post_meta( $post_id, '_user_id', $current_user->ID );
+            update_post_meta( $post_id, '_lesson_id', $lesson_id );
+            update_post_meta( $post_id, '_activity_status', 0 );
+            update_post_meta( $post_id, '_activity_started', $now );
+            update_post_meta( $post_id, '_activity_completed', '' );
+            update_post_meta( $post_id, '_activity_updated', $now );
+
+        }
+        else {
+            $post_id = $existing[0];
+        }
 
 		$post_id = $existing[0];
 		$now = time();
@@ -334,7 +356,28 @@ class LD_Plant_Activity_Public {
 		] );
 
 		if ( empty( $existing ) ) {
-			wp_send_json_error( [ 'message' => 'No existing activity found' ], 404 );
+            $post_id = wp_insert_post( [
+                'post_title'   => 'Plant Activity - ' . current_time( 'Y-m-d H:i:s' ),
+                'post_status'  => 'publish',
+                'post_type'    => 'sfwd-plant-activity',
+                'post_content' => '',
+            ] );
+
+            if ( is_wp_error( $post_id ) ) {
+                wp_send_json_error( [ 'message' => 'Failed to create activity' ], 500 );
+            }
+
+            $now = time();
+
+            update_post_meta( $post_id, '_user_id', $current_user->ID );
+            update_post_meta( $post_id, '_lesson_id', $lesson_id );
+            update_post_meta( $post_id, '_activity_status', 0 );
+            update_post_meta( $post_id, '_activity_started', $now );
+            update_post_meta( $post_id, '_activity_completed', '' );
+            update_post_meta( $post_id, '_activity_updated', $now );
+        } else {
+            $post_id = $existing[0];
+
 		}
 
 		$post_id = $existing[0];
@@ -426,8 +469,28 @@ class LD_Plant_Activity_Public {
 		] );
 
 		if ( empty( $existing ) ) {
-			wp_send_json_error( [ 'message' => 'No existing activity found' ], 404 );
-		}
+            $post_id = wp_insert_post( [
+                'post_title'   => 'Plant Activity - ' . current_time( 'Y-m-d H:i:s' ),
+                'post_status'  => 'publish',
+                'post_type'    => 'sfwd-plant-activity',
+                'post_content' => '',
+            ] );
+
+            if ( is_wp_error( $post_id ) ) {
+                wp_send_json_error( [ 'message' => 'Failed to create activity' ], 500 );
+            }
+
+            $now = time();
+
+            update_post_meta( $post_id, '_user_id', $current_user->ID );
+            update_post_meta( $post_id, '_lesson_id', $lesson_id );
+            update_post_meta( $post_id, '_activity_status', 0 );
+            update_post_meta( $post_id, '_activity_started', $now );
+            update_post_meta( $post_id, '_activity_completed', '' );
+            update_post_meta( $post_id, '_activity_updated', $now );
+        } else {
+            $post_id = $existing[0];
+        }
 
 		$post_id = $existing[0];
 
@@ -456,11 +519,11 @@ class LD_Plant_Activity_Public {
 
 
 	public function react_enqueue_scripts() {
-		wp_enqueue_script( 'plant-grow-react-app', plugin_dir_url(__FILE__) . 'build/static/js/main.b7eaddba.js', array(), null, true );
+		wp_enqueue_script( 'plant-grow-react-app', plugin_dir_url(__FILE__) . 'build/static/js/main.7d23a1d9.js', array(), null, true );
 	}
 
 	public function react_enqueue_styles() {
-		wp_enqueue_style( 'plant-grow-react-style', plugin_dir_url(__FILE__) . 'build/static/css/main.5dc92bc1.css' );
+		wp_enqueue_style( 'plant-grow-react-style', plugin_dir_url(__FILE__) . 'build/static/css/main.f71e9a8d.css' );
 	}
 
 	public function render_react_app($atts) {
