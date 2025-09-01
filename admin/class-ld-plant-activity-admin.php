@@ -304,7 +304,8 @@ class LD_Plant_Activity_Admin {
 			// 'total_progress' => get_post_meta( $post_id, '_total_progress', true ),
 			// 'total_points'   => get_post_meta( $post_id, '_total_points', true )
 			'total'   => get_post_meta( $post_id, '_total', true ),
-			'last_growth_point' => get_post_meta( $post_id, '_last_growth_point', true )
+			'last_growth_point' => get_post_meta( $post_id, '_last_growth_point', true ),
+			'plant_assets' => get_post_meta( $post_id, '_plant_assets', true ),
 		];
 
 		wp_send_json_success( [ 'stats' => $stats ] );
