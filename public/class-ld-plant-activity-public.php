@@ -295,7 +295,7 @@ class LD_Plant_Activity_Public {
                 wp_send_json_error( [ 'message' => 'Failed to create activity' ], 500 );
             }
 
-//            wp_send_json_error( [ 'message' => 'No existing activity found to complete' ], 404 );
+			//            wp_send_json_error( [ 'message' => 'No existing activity found to complete' ], 404 );
             $now = time();
 
             update_post_meta( $post_id, '_user_id', $current_user->ID );
@@ -407,12 +407,12 @@ class LD_Plant_Activity_Public {
 		}
 
 		// Dead leaves / purines
-		if ( isset( $_POST['dead_leaves_progress'] ) ) {
-			update_post_meta( $post_id, '_dead_leaves_progress', intval( $_POST['dead_leaves_progress'] ) );
-		}
-		if ( isset( $_POST['dead_leaves_points'] ) ) {
-			update_post_meta( $post_id, '_dead_leaves_points', intval( $_POST['dead_leaves_points'] ) );
-		}
+		// if ( isset( $_POST['dead_leaves_progress'] ) ) {
+		// 	update_post_meta( $post_id, '_dead_leaves_progress', intval( $_POST['dead_leaves_progress'] ) );
+		// }
+		// if ( isset( $_POST['dead_leaves_points'] ) ) {
+		// 	update_post_meta( $post_id, '_dead_leaves_points', intval( $_POST['dead_leaves_points'] ) );
+		// }
 
 		// Total progress
 		// if ( isset( $_POST['total_progress'] ) ) {
@@ -421,6 +421,10 @@ class LD_Plant_Activity_Public {
 		// if ( isset( $_POST['total_points'] ) ) {
 		// 	update_post_meta( $post_id, '_total_points', intval( $_POST['total_points'] ) );
 		// }
+		
+		if ( isset( $_POST['balance_recovery_points'] ) ) {
+			update_post_meta( $post_id, '_balance_recovery_points', intval( $_POST['balance_recovery_points'] ) );
+		}
 
 		if ( isset( $_POST['total'] ) ) {
 			update_post_meta( $post_id, '_total', intval( $_POST['total'] ) );
@@ -500,20 +504,19 @@ class LD_Plant_Activity_Public {
 
 		// Retrieve all the required post meta fields
 		$data = [
-			'water_progress'     => get_post_meta( $post_id, '_water_progress', true ),
-			'water_points'       => get_post_meta( $post_id, '_water_points', true ),
-			'sun_progress'       => get_post_meta( $post_id, '_sun_progress', true ),
-			'sun_points'         => get_post_meta( $post_id, '_sun_points', true ),
-			'nutrient_progress'  => get_post_meta( $post_id, '_nutrient_progress', true ),
-			'nutrient_points'    => get_post_meta( $post_id, '_nutrient_points', true ),
-			'dead_leaves_progress' => get_post_meta( $post_id, '_dead_leaves_progress', true ),
-			'dead_leaves_points' => get_post_meta( $post_id, '_dead_leaves_points', true ),
-			// 'total_progress'     => get_post_meta( $post_id, '_total_progress', true ),
-			// 'total_points'       => get_post_meta( $post_id, '_total_points', true ),
-			'total'       => get_post_meta( $post_id, '_total', true ),
-			'last_growth_point' => get_post_meta( $post_id, '_last_growth_point', true ),
-			'plant_assets' => get_post_meta( $post_id, '_plant_assets', true ),
-			'activity_updated'   => get_post_meta( $post_id, '_activity_updated', true ),
+			'water_progress'      => empty(get_post_meta($post_id, '_water_progress', true)) ? 0 : get_post_meta($post_id, '_water_progress', true),
+			'water_points'        => empty(get_post_meta($post_id, '_water_points', true)) ? 0 : get_post_meta($post_id, '_water_points', true),
+			'sun_progress'        => empty(get_post_meta($post_id, '_sun_progress', true)) ? 0 : get_post_meta($post_id, '_sun_progress', true),
+			'sun_points'          => empty(get_post_meta($post_id, '_sun_points', true)) ? 0 : get_post_meta($post_id, '_sun_points', true),
+			'nutrient_progress'   => empty(get_post_meta($post_id, '_nutrient_progress', true)) ? 0 : get_post_meta($post_id, '_nutrient_progress', true),
+			'nutrient_points'     => empty(get_post_meta($post_id, '_nutrient_points', true)) ? 0 : get_post_meta($post_id, '_nutrient_points', true),
+			// 'dead_leaves_progress'=> empty(get_post_meta($post_id, '_dead_leaves_progress', true)) ? 0 : get_post_meta($post_id, '_dead_leaves_progress', true),
+			// 'dead_leaves_points'  => empty(get_post_meta($post_id, '_dead_leaves_points', true)) ? 0 : get_post_meta($post_id, '_dead_leaves_points', true),
+			'balance_recovery_points' => empty(get_post_meta($post_id, '_balance_recovery_points', true)) ? 0 : get_post_meta($post_id, '_balance_recovery_points', true),
+			'total'               => empty(get_post_meta($post_id, '_total', true)) ? 0 : get_post_meta($post_id, '_total', true),
+			'last_growth_point'   => empty(get_post_meta($post_id, '_last_growth_point', true)) ? 0 : get_post_meta($post_id, '_last_growth_point', true),
+			'plant_assets'        => empty(get_post_meta($post_id, '_plant_assets', true)) ? 0 : get_post_meta($post_id, '_plant_assets', true),
+			'activity_updated'    => empty(get_post_meta($post_id, '_activity_updated', true)) ? 0 : get_post_meta($post_id, '_activity_updated', true),
 		];
 
 		wp_send_json_success( [
