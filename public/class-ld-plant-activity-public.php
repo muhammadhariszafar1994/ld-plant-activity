@@ -96,14 +96,22 @@ class LD_Plant_Activity_Public {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->ld_plant_activity, plugin_dir_url( __FILE__ ) . 'js/ld-plant-activity-public.js', array( 'jquery' ), $this->version, false );
-
+		
 		wp_enqueue_script( 'plant-activity-app', plugin_dir_url(__FILE__) . 'plantgrow/build/static/js/main.bundle.js', [], '1.0.0', true );
+		wp_enqueue_script( 'plant-activity-app-public', plugin_dir_url(__FILE__) . 'js/ld-plant-activity-public.js', [], '1.0.0',
+			true
+		);
+
 		wp_localize_script( 'plant-activity-app', 'LDPlantActivityData', [
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'plant_activity_nonce' ),
 			'post_id'  => get_the_ID()
 		] );
+		wp_localize_script('plant-activity-app-public', 'LDPlantActivityReset', [
+			'ajax_url' => admin_url('admin-ajax.php'),
+			'nonce'    => wp_create_nonce('plant_activity_nonce'),
+			'post_id'  => get_the_ID(),
+		]);
 	}
 
 	public function add_sfwd_plant_activity_post_type() {
@@ -438,6 +446,18 @@ class LD_Plant_Activity_Public {
 			update_post_meta( $post_id, '_plant_assets', $_POST['plant_assets'] );
 		}
 
+		if ( isset( $_POST['activity_status'] ) ) {
+			update_post_meta( $post_id, '_activity_status', $_POST['activity_status'] );
+		}
+
+		if ( isset( $_POST['activity_started'] ) ) {
+			update_post_meta( $post_id, '_activity_started', $_POST['activity_started'] );
+		}
+
+		if ( isset( $_POST['activity_completed'] ) ) {
+			update_post_meta( $post_id, '_activity_completed', $_POST['activity_completed'] );
+		}
+
 		update_post_meta( $post_id, '_activity_updated', time() );
 
 		wp_send_json_success( [
@@ -571,39 +591,105 @@ class LD_Plant_Activity_Public {
 			$current_user = wp_get_current_user();
 			$lesson_id = $post->ID;
 
-			$activity_status = $wpdb->get_var($wpdb->prepare("
-                            SELECT pm_status.meta_value
-                            FROM {$wpdb->postmeta} pm_user
-                            INNER JOIN {$wpdb->postmeta} pm_lesson 
-                                ON pm_user.post_id = pm_lesson.post_id
-                            INNER JOIN {$wpdb->postmeta} pm_status 
-                                ON pm_user.post_id = pm_status.post_id
-                            WHERE pm_user.meta_key = '_user_id' 
-                            AND pm_user.meta_value = %d
-                            AND pm_lesson.meta_key = '_lesson_id'
-                            AND pm_lesson.meta_value = %d
-                            AND pm_status.meta_key = '_activity_status'
-                            LIMIT 1
-                        ", $current_user->ID, $lesson_id));
+			$records = $wpdb->get_results($wpdb->prepare("
+				SELECT pm1.post_id, pm3.meta_value AS activity_status
+				FROM wp_postmeta pm1
+				JOIN wp_postmeta pm2 ON pm1.post_id = pm2.post_id
+				JOIN wp_postmeta pm3 ON pm1.post_id = pm3.post_id
+				WHERE pm1.meta_key = '_user_id' AND pm1.meta_value = %d
+				AND pm2.meta_key = '_lesson_id' AND pm2.meta_value = %d
+				AND pm3.meta_key = '_activity_status'
+			", $current_user->ID, $lesson_id));
+
+			$findRecordCount = count($records);
+			$latest_post_id = $records[0]->post_id;
+
+			if ( $findRecordCount > 1 ) {
+				$latest_post_id = $wpdb->get_var($wpdb->prepare("
+					SELECT pm1.post_id
+					FROM wp_postmeta pm1
+					JOIN wp_postmeta pm2 ON pm1.post_id = pm2.post_id
+					JOIN wp_postmeta pm3 ON pm1.post_id = pm3.post_id
+					WHERE pm1.meta_key = '_user_id' AND pm1.meta_value = %d
+					AND pm2.meta_key = '_lesson_id' AND pm2.meta_value = %d
+					AND pm3.meta_key = '_activity_status'
+					ORDER BY pm1.post_id DESC
+					LIMIT 1
+				", $current_user->ID, $lesson_id));
+
+				if ( $latest_post_id ) {
+					$wpdb->query($wpdb->prepare("
+						DELETE pm
+						FROM wp_postmeta pm
+						WHERE pm.post_id IN (
+							SELECT post_id FROM (
+								SELECT pm1.post_id
+								FROM wp_postmeta pm1
+								JOIN wp_postmeta pm2 ON pm1.post_id = pm2.post_id
+								JOIN wp_postmeta pm3 ON pm1.post_id = pm3.post_id
+								WHERE pm1.meta_key = '_user_id' AND pm1.meta_value = %d
+								AND pm2.meta_key = '_lesson_id' AND pm2.meta_value = %d
+								AND pm3.meta_key = '_activity_status'
+								AND pm1.post_id != %d
+							) AS temp_subquery
+						)
+					", $current_user->ID, $lesson_id, $latest_post_id));
+				}
+			}
+
+			$activity_status = isset($records[0]->activity_status) ? $records[0]->activity_status : null;
+			if ( $post_id ) {
+				$activity_status = $wpdb->get_var($wpdb->prepare("
+					SELECT meta_value
+					FROM {$wpdb->postmeta}
+					WHERE post_id = %d
+					AND meta_key = '_activity_status'
+					LIMIT 1
+				", $post_id));
+			}
+			
+			// $activity_status = $wpdb->get_var($wpdb->prepare("
+            //                 SELECT pm_status.meta_value
+            //                 FROM {$wpdb->postmeta} pm_user
+            //                 INNER JOIN {$wpdb->postmeta} pm_lesson 
+            //                     ON pm_user.post_id = pm_lesson.post_id
+            //                 INNER JOIN {$wpdb->postmeta} pm_status 
+            //                     ON pm_user.post_id = pm_status.post_id
+            //                 WHERE pm_user.meta_key = '_user_id' 
+            //                 AND pm_user.meta_value = %d
+            //                 AND pm_lesson.meta_key = '_lesson_id'
+            //                 AND pm_lesson.meta_value = %d
+            //                 AND pm_status.meta_key = '_activity_status'
+            //                 LIMIT 1
+            //             ", $current_user->ID, $lesson_id));
 
 			if ( 
 				$enabled === 'yes' 
-				&& $activity_status !== '1' 
 				&& !learndash_is_lesson_complete($current_user->ID, $lesson_id) 
 			) {
-			// if ($enabled === 'yes') {
+				$html = '';
 				$custom_page_url = add_query_arg([
 					'plant_activity' => 'yes',
 					'lesson_id'      => $post->ID
 				], site_url('/index.php'));
+				error_log('$post->ID' , $post->ID);
 
-				$button_html = '<a href="' . esc_url($custom_page_url) . '" 
-					style="display:inline-block;padding:10px 20px;background:#4CAF50;color:#fff;
-					text-decoration:none;border-radius:5px;" target="_blank">
-					Start Plant Activity
-				</a>';
-
-				$content .= $button_html;
+				if( $activity_status !== '1' ) {
+					$html = '<a href="' . esc_url($custom_page_url) . '" 
+						style="display:inline-block;padding:10px 20px;background:#4CAF50;color:#fff;
+						text-decoration:none;border-radius:5px;" target="_blank">
+						Start Plant Activity
+					</a>';
+				} else {
+					$html = '<button type="button" 
+						style="display:inline-block;padding:10px 20px;background:#FF5722;color:#fff;
+						text-decoration:none;border:none;border-radius:5px;cursor:pointer;"
+						onclick="restartPlantActivity(' . esc_js($lesson_id) . ', \'' . esc_url($custom_page_url) . '\')">
+						Restart Plant Activity
+					</button>';
+				}
+				
+				$content .= $html;
 			}
 		}
 
